@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Minha Noite no Museu</title>
+    <style>
+        body { background: #000; color: white; text-align: center; font-family: sans-serif; }
+        #game-container { width: 800px; height: 450px; margin: 20px auto; border: 5px solid #333; position: relative; overflow: hidden; background: #111; }
+        #screen { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .controls { margin-top: 10px; }
+        button { padding: 10px 20px; cursor: pointer; background: #444; color: white; border: none; margin: 5px; }
+        button:hover { background: #666; }
+        #status { color: #0f0; }
+    </style>
+</head>
+<body>
+
+    <h1>Vigilante do Museu</h1>
+    <div id="game-container">
+        <div id="screen">Carregando...</div>
+    </div>
+
+    <div class="controls">
+        <button onclick="checarCamera()">Olhar Câmeras</button>
+        <button onclick="ligarLuz()">Ligar Luz da Porta</button>
+    </div>
+
+    <p>Bateria: <span id="power">100</span>%</p>
+    <p id="status">Tudo calmo por enquanto...</p>
+
+    <script>
+        // Variáveis do Jogo
+        let bateria = 100;
+        let posicaoMonstro = 0; // 0 = Longe, 1 = Perto, 2 = Na Porta
+        let jogoAtivo = true;
+
+        const tela = document.getElementById("screen");
+        const statusTxt = document.getElementById("status");
+        const powerTxt = document.getElementById("power");
+
+        // Ciclo do Monstro (tenta se mover a cada 5 segundos)
+        const cicloMonstro = setInterval(() => {
+            if (!jogoAtivo) return;
+
+            if (Math.random() > 0.5) { // 50% de chance de mover
+                posicaoMonstro++;
+                console.log("O monstro se moveu para a posição: " + posicaoMonstro);
+            }
+
+            if (posicaoMonstro > 2) {
+                perder();
+            }
+        }, 5000);
+
+        // Sistema de Bateria
+        const cicloBateria = setInterval(() => {
+            if (!jogoAtivo) return;
+            bateria -= 1;
+            powerTxt.innerText = bateria;
+            if (bateria <= 0) perder("A energia acabou!");
+        }, 3000);
+
+        function checarCamera() {
+            if (!jogoAtivo) return;
+            if (posicaoMonstro === 0) tela.innerText = "[CÂMERA] Corredor Vazio";
+            if (posicaoMonstro === 1) tela.innerText = "[CÂMERA] Algo se mexeu nas sombras...";
+            if (posicaoMonstro === 2) tela.innerText = "[CÂMERA] CUIDADO! A estátua sumiu da câmera!";
+            statusTxt.innerText = "Você olhou as câmeras.";
+        }
+
+        function ligarLuz() {
+            if (!jogoAtivo) return;
+            bateria -= 2; // Usar luz gasta mais bateria
+            
+            if (posicaoMonstro === 2) {
+                tela.innerText = "[LUZ] VOCÊ VIU A ESTÁTUA E ELA FUGIU!";
+                posicaoMonstro = 0; // Reseta o monstro
+                statusTxt.innerText = "Você espantou o perigo!";
+            } else {
+                tela.innerText = "[LUZ] Não há nada na porta.";
+                statusTxt.innerText = "Luz ligada.";
+            }
+        }
+
+        function perder(motivo = "O MONSTRO TE PEGOU!") {
+            jogoAtivo = false;
+            clearInterval(cicloMonstro);
+            clearInterval(cicloBateria);
+            tela.innerText = "JUMPSCARE! 👻";
+            tela.style.background = "red";
+            alert("GAME OVER: " + motivo);
+        }
+    </script>
+</body>
+</html>
