@@ -6,6 +6,7 @@ body {
     flex-direction: column;
     align-items: center;
     user-select: none;
+    overflow: hidden;
 }
 
 #game-container {
@@ -15,22 +16,26 @@ body {
     border: 10px solid #222;
     position: relative;
     overflow: hidden;
-    background: #111;
+    background: #000;
 }
 
 #screen {
     width: 100%;
     height: 100%;
-    background-color: #050505;
     background-size: cover;
     background-position: center;
     transition: filter 0.1s;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
-/* Efeito de Estática */
+/* Classes de Fundo das Câmeras */
+.bg-cam1 { background-image: url('https://r.jina.ai/i/e4745300f898495689da766467389882'); }
+.bg-cam2 { background-image: url('https://r.jina.ai/i/4294711340154030807b198888947475'); }
+.bg-cam3 { background-color: #050505; } /* Depósito escuro */
+
 .static {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -50,23 +55,32 @@ body {
     z-index: 11;
 }
 
+/* Overlay da Estátua (Anjo) */
 #statue-overlay {
-    font-size: 80px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://r.jina.ai/i/4294711340154030807b198888947475');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
     z-index: 5;
-    filter: drop-shadow(0 0 10px #000);
 }
 
 #ui {
     position: absolute;
     bottom: 10px; left: 20px;
     z-index: 20;
+    background: rgba(0,0,0,0.5);
+    padding: 5px;
 }
 
 #usage { color: #ff0; font-weight: bold; }
 
-.controls { margin-top: 15px; text-align: center; }
-button {
+.controls button {
     background: #333; color: white; border: 2px solid #555;
-    padding: 10px; cursor: pointer; margin: 2px;
+    padding: 10px 15px; cursor: pointer; margin: 2px;
+    font-family: 'Courier New', monospace;
 }
+
 button:hover { background: #444; }

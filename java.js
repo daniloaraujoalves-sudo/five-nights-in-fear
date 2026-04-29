@@ -4,61 +4,94 @@ let camAtual = 1;
 let portaFechada = false;
 let luzLigada = false;
 let gameActive = true;
+let posicaoInimigo = 3; // Começa na CAM 03
 
-// Configuração das Câmeras e Posição do "Inimigo"
-const cams = {
-    1: { nome: "CAM 01: GALERIA GREGA", inimigo: false },
-    2: { nome: "CAM 02: CORREDOR SUL", inimigo: false },
-    3: { nome: "CAM 03: DEPÓSITO", inimigo: true } // A estátua começa aqui
+const configCams = {
+    1: { nome: "CAM 01: GALERIA GREGA", classe: "bg-cam1" },
+    2: { nome: "CAM 02: CORREDOR SUL", classe: "bg-cam2" },
+    3: { nome: "CAM 03: DEPÓSITO", classe: "bg-cam3" }
 };
 
-// --- LÓGICA DE ENERGIA ---
-function atualizarEnergia() {
+// --- CICLO DE JOGO ---
+function atualizarGeral() {
     if (!gameActive) return;
 
+    // Consumo de Energia
     if (energia > 0) {
-        // O consumo depende de quantos aparelhos estão ligados
-        energia -= (uso * 0.1); 
-        document.getElementById('power').innerText = Math.floor(energia);
-        
-        // Atualiza as barrinhas de uso no UI
+        energia -= (uso * 0.15);
+        document.getElementById('power').innerText = Math.max(0, Math.floor(energia));
         document.getElementById('usage').innerText = ">".repeat(uso);
     } else {
-        gameOver("ACABOU A ENERGIA!");
+        gameOver("ACABOU A ENERGIA...");
     }
 }
+setInterval(atualizarGeral, 1000);
 
-setInterval(atualizarEnergia, 1000); // Consome energia a cada segundo
+// --- MOVIMENTO DO ANJO ---
+function IAInimigo() {
+    if (!gameActive) return;
 
-// --- CONTROLES ---
-function mudarCam(id) {
-    camAtual = id;
-    document.getElementById('cam-name').innerText = cams[id].nome;
+    // Se o anjo não estiver sendo observado, ele tem chance de mover
+    if (posicaoInimigo !== camAtual) {
+        if (Math.random() > 0.4) {
+            posicaoInimigo--; // Se aproxima do escritório (0)
+        }
+    }
+
+    if (posicaoInimigo === 0) {
+        if (!portaFechada) {
+            gameOver("O ANJO TE ENCONTROU.");
+        } else {
+            posicaoInimigo = 3; // Volta para o início se bater na porta
+        }
+    }
     verificarInimigo();
+}
+setInterval(IAInimigo, 4000); // Tenta mover a cada 4 segundos
+
+// --- FUNÇÕES DE AÇÃO ---
+function mudarCam(id) {
+    if (!gameActive) return;
+    camAtual = id;
+    const screen = document.getElementById('screen');
+    
+    // Troca o fundo e o nome
+    screen.className = configCams[id].classe;
+    document.getElementById('cam-name').innerText = configCams[id].nome;
+    
+    verificarInimigo();
+}
+
+function verificarInimigo() {
+    const display = document.getElementById('statue-overlay');
+    // Só mostra o overlay se o anjo estiver na câmera atual
+    display.style.display = (posicaoInimigo === camAtual) ? "block" : "none";
 }
 
 function togglePorta() {
     portaFechada = !portaFechada;
-    const btn = document.getElementById('btn-porta');
-    btn.style.background = portaFechada ? "#800" : "#333";
     uso = portaFechada ? uso + 1 : uso - 1;
+    document.getElementById('btn-porta').style.background = portaFechada ? "#800" : "#333";
 }
 
 function ligarLuz() {
     luzLigada = true;
     uso++;
-    document.getElementById('screen').style.filter = "brightness(1.5)";
-    document.getElementById('btn-luz').style.background = "#880";
+    document.getElementById('screen').style.filter = "brightness(1.8) contrast(1.2)";
 }
 
 function desligarLuz() {
     luzLigada = false;
     uso--;
     document.getElementById('screen').style.filter = "brightness(1)";
-    document.getElementById('btn-luz').style.background = "#333";
 }
 
-// Atalhos de Teclado
+function gameOver(msg) {
+    gameActive = false;
+    document.getElementById('screen').innerHTML = `<h1 style="color:red; text-align:center; margin-top:150px;">${msg}</h1>`;
+}
+
+// Atalhos Teclado
 window.addEventListener('keydown', (e) => {
     if (e.code === "Space") togglePorta();
     if (e.key.toLowerCase() === "l") ligarLuz();
@@ -66,46 +99,3 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => {
     if (e.key.toLowerCase() === "l") desligarLuz();
 });
-
-// --- INTELIGÊNCIA ARTIFICIAL (O MONSTRO) ---
-let posicaoInimigo = 3; // Começa na Cam 3
-
-function moverInimigo() {
-    if (!gameActive) return;
-
-    // Chance de se mover (sorteio)
-    if (Math.random() > 0.5) {
-        if (posicaoInimigo > 0) {
-            posicaoInimigo--; // Ele vai se aproximando da sala (0)
-        }
-    }
-
-    if (posicaoInimigo === 0) {
-        // Ele chegou na sua porta!
-        if (!portaFechada) {
-            gameOver("VOCÊ FOI PEGO!");
-        } else {
-            // Se a porta estiver fechada, ele volta para a Cam 3
-            posicaoInimigo = 3;
-        }
-    }
-    verificarInimigo();
-}
-
-setInterval(moverInimigo, 5000); // Tenta se mover a cada 5 segundos
-
-function verificarInimigo() {
-    const display = document.getElementById('statue-overlay');
-    // Se o inimigo estiver na câmera que você está olhando
-    if (posicaoInimigo === camAtual) {
-        display.innerText = "🗿"; // Representação da estátua
-    } else {
-        display.innerText = "";
-    }
-}
-
-function gameOver(mensagem) {
-    gameActive = false;
-    document.getElementById('screen').innerHTML = `<h1 style="color:red">${mensagem}</h1>`;
-    document.getElementById('game-container').style.background = "#000";
-}

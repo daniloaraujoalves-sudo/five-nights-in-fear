@@ -8,10 +8,11 @@
 <body>
 
 <div id="game-container">
-    <div id="screen">
+    <div id="screen" class="bg-cam1">
         <div class="static"></div>
         <div class="cam-label" id="cam-name">CAM 01: GALERIA GREGA</div>
-        <div id="statue-overlay"></div> </div>
+        <div id="statue-overlay" style="display: none;"></div> 
+    </div>
 
     <div id="ui">
         <p>ENERGIA: <span id="power">100</span>%</p>
@@ -25,7 +26,7 @@
         <button onclick="mudarCam(2)">CAM 02</button>
         <button onclick="mudarCam(3)">CAM 03</button>
     </div>
-    <div class="action-buttons">
+    <div class="action-buttons" style="margin-top: 10px;">
         <button id="btn-luz" onmousedown="ligarLuz()" onmouseup="desligarLuz()">LANTERNA (L)</button>
         <button id="btn-porta" onclick="togglePorta()">PORTA (ESPAÇO)</button>
     </div>
